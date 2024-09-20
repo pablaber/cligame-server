@@ -1,26 +1,29 @@
 import mongoose from 'mongoose';
 
-const tokenSchema = new mongoose.Schema({
-  refreshToken: {
-    type: String,
-    required: true,
-    unique: true,
-    index: true,
+const tokenSchema = new mongoose.Schema(
+  {
+    refreshToken: {
+      type: String,
+      required: true,
+      unique: true,
+      index: true,
+    },
+    userId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
+      required: true,
+    },
+    lastUsed: {
+      type: Date,
+      required: true,
+    },
+    expiresAt: {
+      type: Date,
+      required: true,
+    },
   },
-  userId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
-    required: true,
-  },
-  lastUsed: {
-    type: Date,
-    required: true,
-  },
-  expiresAt: {
-    type: Date,
-    required: true,
-  },
-}, { timestamps: true });
+  { timestamps: true },
+);
 
 tokenSchema.virtual('id').get(function () {
   return this._id.toHexString();

@@ -2,7 +2,8 @@
   "name": "server",
   "scripts": {
     "dev": "tsx watch src/index.ts",
-    "format": "prettier --write \"src/**/*ts\""
+    "format": "prettier --write \"src/**/*ts\"",
+    "test": "vitest"
   },
   "dependencies": {
     "@hono/node-server": "^1.13.0",
@@ -14,6 +15,7 @@
   "devDependencies": {
     "@types/node": "^20.11.17",
     "prettier": "^3.3.3",
-    "tsx": "^4.7.1"
+    "tsx": "^4.7.1",
+    "vitest": "^2.1.1"
   }
 }

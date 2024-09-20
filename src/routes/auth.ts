@@ -9,8 +9,10 @@ import {
   generateEmailChallenge,
   generateRefreshToken,
 } from '../utils/auth-utils';
-
-const REFRESH_TOKEN_EXPIRATION_DAYS = 30;
+import {
+  REFRESH_TOKEN_EXPIRATION_DAYS,
+  PASSWORD_SALT_BYTES,
+} from '../constants/api-constants';
 
 const authRouter = new Hono();
 
@@ -29,7 +31,7 @@ authRouter.post('/register', async (c) => {
     password: string;
   }>();
 
-  const salt = randomBytes(16).toString('hex');
+  const salt = randomBytes(PASSWORD_SALT_BYTES).toString('hex');
   const passwordHash = generatePasswordHash(password, salt);
 
   try {
@@ -135,7 +137,7 @@ authRouter.post('/refresh', async (c) => {
     return c.json({ message: 'Refresh token is required' }, 400);
   }
 
-  const token = await Token.findById(refreshToken);
+  const token = await Token.findOne({ refreshToken });
   if (!token) {
     return c.json({ message: 'Invalid refresh token' }, 401);
   }

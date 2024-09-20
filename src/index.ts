@@ -7,17 +7,17 @@ import mongoose from 'mongoose';
 config();
 
 import authRouter from './routes/auth';
+import actionRouter from './routes/action';
+import tavernRouter from './routes/tavern';
 
 async function main() {
-  const {
-    MONGO_URI,
-  } = process.env;
-  
+  const { MONGO_URI } = process.env;
+
   if (!MONGO_URI) {
     console.error('MONGO_URI is not set');
     process.exit(1);
   }
-  
+
   const app = new Hono();
 
   try {
@@ -36,6 +36,8 @@ async function main() {
   console.log(`Server is running on port ${port}`);
 
   app.route('/auth', authRouter);
+  app.route('/action', actionRouter);
+  app.route('/tavern', tavernRouter);
 
   serve({
     fetch: app.fetch,
