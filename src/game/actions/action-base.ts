@@ -1,15 +1,17 @@
-import type { ISkills } from '../models/user/skills';
+import type { ISkills } from '../../models/user/skills';
 import type { StatusCode } from 'hono/utils/http-status';
 
 export type ActionResult =
   | {
       success: true;
       message: string;
+      extraData?: Record<string, any>;
     }
   | {
       success: false;
       message: string;
       code?: StatusCode;
+      extraData?: Record<string, any>;
     };
 
 export type LevelRequirement = {

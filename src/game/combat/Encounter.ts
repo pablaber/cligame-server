@@ -161,15 +161,15 @@ export class Encounter {
       player: this.player.combatLogInfo(),
     });
 
-    this.log.forEach((entry) => {
-      console.log(logEntryToString(entry));
-    });
+    const log = this.log.map(logEntryToString);
 
     return {
       playerWon,
       enemyWon,
+      log,
       draw,
       xp,
+      playerHealth: this.player.health,
     };
   }
 }
