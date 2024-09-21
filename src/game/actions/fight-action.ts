@@ -4,6 +4,7 @@ import { newEnemy, newRandomEnemy } from '../combat/enemies';
 import { Player } from '../combat/Player';
 import { Encounter } from '../combat/Encounter';
 import type { Enemy } from '../combat/Enemy';
+import { loadUserCheckRequirements } from './action-base';
 
 type FightActionRequestBody = {
   enemyId?: string;
@@ -19,9 +20,13 @@ export const FightAction: ActionBase = {
     userId: string,
     options?: FightActionRequestBody,
   ): Promise<ActionResult> {
-    const user = await User.findById(userId);
-    if (!user) {
-      return { success: false, message: 'User not found' };
+    const [err, user] = await loadUserCheckRequirements(this, userId);
+    if (err || !user) {
+      return err as ActionResult;
+    }
+
+    if (user.health <= 0) {
+      return { success: false, message: 'You are dead' };
     }
 
     const enemyId = options?.enemyId;

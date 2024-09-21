@@ -1,8 +1,10 @@
 import { ActionBase, ActionResult } from './action-base';
 import { TrainSkillAction } from './train-skill-action';
 import { FightAction } from './fight-action';
+import { HealAction } from './heal-action';
 
 export const AllActions: ActionBase[] = [
+  HealAction,
   FightAction,
   TrainSkillAction('strength', { energyCost: 3 }),
   TrainSkillAction('defense', { energyCost: 3 }),

@@ -3,11 +3,9 @@ import {
   type ActionResult,
   type LevelRequirement,
   ActionBase,
-  meetsActionLevelRequirements,
-  meetsActionEnergyRequirements,
+  loadUserCheckRequirements,
 } from './action-base';
 import { upperFirst } from '../../utils/helpers';
-import { User } from '../../models';
 
 type TrainSkillActionOptions = {
   energyCost?: number;
@@ -30,25 +28,9 @@ export function TrainSkillAction(
     requirements: levelRequirements,
 
     async execute(userId: string): Promise<ActionResult> {
-      const user = await User.findById(userId);
-      if (!user) {
-        return { success: false, message: 'User not found' };
-      }
-
-      if (!meetsActionLevelRequirements(this, user.skills)) {
-        return {
-          success: false,
-          message: 'User does not meet action requirements',
-          code: 403,
-        };
-      }
-
-      if (!meetsActionEnergyRequirements(this, user.energy.currentEnergy)) {
-        return {
-          success: false,
-          message: 'User does not meet action energy requirements',
-          code: 403,
-        };
+      const [err, user] = await loadUserCheckRequirements(this, userId);
+      if (err || !user) {
+        return err as ActionResult;
       }
 
       user.skills[skill] = user.skills[skill] || { xp: 0 };
