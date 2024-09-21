@@ -47,12 +47,9 @@ function calculateCurrentEnergy(
   const regen = Math.floor(diffMs / ENERGY_REGEN_RATE_MS);
 
   const newCurrentEnergy = Math.min(currentEnergy + regen, ENERGY_MAX);
-  if (newCurrentEnergy === ENERGY_MAX) {
-    newNextTick = undefined;
-  }
 
   return {
-    currentEnergy: Math.min(currentEnergy + regen, 100),
+    currentEnergy: newCurrentEnergy,
     nextTick: newNextTick,
   };
 }

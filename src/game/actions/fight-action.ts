@@ -47,7 +47,9 @@ export const FightAction: ActionBase = {
     const result = await encounter.start();
 
     user.skills.strength.xp += result.xp;
-    user.health = result.playerHealth;
+    user.skills.defense.xp += Math.floor(result.xp / 2);
+    user.health = Math.max(result.playerHealth, 0);
+    user.energy.updateEnergy(-this.energyCost);
 
     await user.save();
 
