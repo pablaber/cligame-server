@@ -4,6 +4,7 @@ import { energySchema } from './energy';
 import { ENERGY_MAX, HEALTH_MAX_BASE } from '../../constants/game-constants';
 import { ISkills } from './skills';
 import { IEnergy } from './energy';
+import type { Document, Types } from 'mongoose';
 
 export type IUser = {
   name: string;
@@ -89,5 +90,10 @@ userSchema.set('toJSON', {
 });
 
 const User = mongoose.model('User', userSchema);
+
+export type UserDocument = Document<unknown, {}, IUser> &
+  IUser & {
+    _id: Types.ObjectId;
+  };
 
 export default User;

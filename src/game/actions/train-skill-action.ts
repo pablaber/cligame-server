@@ -3,8 +3,8 @@ import {
   type ActionResult,
   type LevelRequirement,
   ActionBase,
-  loadUserCheckRequirements,
 } from './action-base';
+import { UserDocument } from '../../models/user/user';
 import { upperFirst } from '../../utils/helpers';
 
 type TrainSkillActionOptions = {
@@ -14,32 +14,22 @@ type TrainSkillActionOptions = {
   levelRequirements?: LevelRequirement[];
 };
 
-export function TrainSkillAction(
-  skill: keyof ISkills,
-  options?: TrainSkillActionOptions,
-): ActionBase {
-  const { energyCost = 1, id, label, levelRequirements = [] } = options || {};
-  const skillWithUpperFirst = upperFirst(skill);
+export class TrainSkillAction extends ActionBase {
+  skill: keyof ISkills;
+  constructor(skill: keyof ISkills, options?: TrainSkillActionOptions) {
+    super({
+      id: `train${upperFirst(skill)}`,
+      label: `Train ${upperFirst(skill)}`,
+      energyCost: 1,
+      requirements: options?.levelRequirements || [],
+    });
+    this.skill = skill;
+  }
 
-  return {
-    id: id || `train${skillWithUpperFirst}`,
-    label: label || `Train ${skillWithUpperFirst}`,
-    energyCost,
-    requirements: levelRequirements,
+  async run(user: UserDocument): Promise<ActionResult> {
+    user.skills[this.skill] = user.skills[this.skill] || { xp: 0 };
+    user.skills[this.skill].xp += 10;
 
-    async execute(userId: string): Promise<ActionResult> {
-      const [err, user] = await loadUserCheckRequirements(this, userId);
-      if (err || !user) {
-        return err as ActionResult;
-      }
-
-      user.skills[skill] = user.skills[skill] || { xp: 0 };
-      user.skills[skill].xp += 10;
-
-      user.energy.updateEnergy(-this.energyCost);
-      await user.save();
-
-      return { success: true, message: `${this.label} successful` };
-    },
-  };
+    return { success: true, message: `${this.label} successful` };
+  }
 }

@@ -1,30 +1,23 @@
-import {
-  ActionBase,
-  ActionResult,
-  loadUserCheckRequirements,
-} from './action-base';
+import { ActionBase, ActionResult } from './action-base';
 import { HEALTH_MAX_BASE } from '../../constants/game-constants';
+import { UserDocument } from '../../models/user/user';
 
-export const HealAction: ActionBase = {
-  id: 'heal',
-  label: 'Heal',
-  energyCost: 15,
-  requirements: [],
+export class HealAction extends ActionBase {
+  constructor() {
+    super({
+      id: 'heal',
+      label: 'heal',
+      energyCost: 15,
+    });
+  }
 
-  async execute(userId: string): Promise<ActionResult> {
-    const [err, user] = await loadUserCheckRequirements(this, userId);
-    if (err || !user) {
-      return err as ActionResult;
-    }
-
+  async run(user: UserDocument): Promise<ActionResult> {
     if (user.health >= HEALTH_MAX_BASE) {
       return { success: false, message: 'You have full health' };
     }
 
     user.health = HEALTH_MAX_BASE;
-    user.energy.updateEnergy(-this.energyCost);
-    await user.save();
 
     return { success: true, message: 'You have been healed' };
-  },
+  }
 };
