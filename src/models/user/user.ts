@@ -12,7 +12,7 @@ export type IUser = {
   passwordHash: string;
   passwordSalt: string;
   isVerified: boolean;
-  emailChallenge: string;
+  emailChallenge?: string;
 
   health: number;
   energy: IEnergy;

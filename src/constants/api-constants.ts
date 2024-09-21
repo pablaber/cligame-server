@@ -7,6 +7,12 @@ export const PASSWORD_SALT_BYTES = 16;
 export const REFRESH_TOKEN_BYTES = 32;
 export const EMAIL_CHALLENGE_BYTES = 32;
 
+// Lengths
+export const USERNAME_MIN_LENGTH = 3;
+export const USERNAME_MAX_LENGTH = 32;
+export const PASSWORD_MIN_LENGTH = 8;
+export const PASSWORD_MAX_LENGTH = 128;
+
 // Calculated Constants do not modify
 export const ACCESS_TOKEN_EXPIRATION_MS = hoursToMilliseconds(
   ACCESS_TOKEN_EXPIRATION_HOURS,
