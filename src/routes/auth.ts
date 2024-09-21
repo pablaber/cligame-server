@@ -1,8 +1,9 @@
 import { Hono } from 'hono';
-import { validator } from 'hono/validator';
 import { z } from 'zod';
 import { randomBytes } from 'crypto';
 import { addDays } from 'date-fns';
+
+import { rateLimit } from '../utils/rate-limit';
 import { User, Token } from '../models';
 import {
   generateAccessToken,
@@ -18,6 +19,8 @@ import {
   USERNAME_MAX_LENGTH,
   PASSWORD_MIN_LENGTH,
   PASSWORD_MAX_LENGTH,
+  REGISTER_RATE_LIMIT_LIMIT,
+  REGISTER_RATE_LIMIT_WINDOW_MS,
 } from '../constants/api-constants';
 import { validateJsonBody, validateQueryParams } from '../utils/route-utils';
 
@@ -28,6 +31,10 @@ const authRouter = new Hono();
  */
 authRouter.post(
   '/register',
+  rateLimit({
+    limitInWindow: REGISTER_RATE_LIMIT_LIMIT,
+    windowInMs: REGISTER_RATE_LIMIT_WINDOW_MS,
+  }),
   validateJsonBody(
     z.object({
       username: z.string().min(USERNAME_MIN_LENGTH).max(USERNAME_MAX_LENGTH),

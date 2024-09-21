@@ -1,4 +1,4 @@
-import { hoursToMilliseconds } from 'date-fns';
+import { hoursToMilliseconds, minutesToMilliseconds } from 'date-fns';
 
 // Auth Related Constants
 export const REFRESH_TOKEN_EXPIRATION_DAYS = 30;
@@ -12,6 +12,10 @@ export const USERNAME_MIN_LENGTH = 3;
 export const USERNAME_MAX_LENGTH = 32;
 export const PASSWORD_MIN_LENGTH = 8;
 export const PASSWORD_MAX_LENGTH = 128;
+
+// Rate Limiting
+export const REGISTER_RATE_LIMIT_WINDOW_MS = minutesToMilliseconds(60);
+export const REGISTER_RATE_LIMIT_LIMIT = 10;
 
 // Calculated Constants do not modify
 export const ACCESS_TOKEN_EXPIRATION_MS = hoursToMilliseconds(
