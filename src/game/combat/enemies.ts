@@ -7,6 +7,7 @@ export const enemiesMap: Record<string, EnemyOptions> = {
     health: 10,
     strength: 1,
     defense: 0,
+    money: [1, 5],
     xp: 10,
   },
   turtle: {
@@ -15,6 +16,7 @@ export const enemiesMap: Record<string, EnemyOptions> = {
     health: 20,
     strength: 2,
     defense: 5,
+    money: [3, 10],
     xp: 20,
   },
 } as const;

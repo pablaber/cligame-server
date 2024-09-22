@@ -15,6 +15,8 @@ export const HIT_CHANCE_PER_LEVEL = 0.1;
 // The combat exhaustion level is the maximum number of attacks that can happen
 // in a fight. It is used to prevent infinite fights.
 export const COMBAT_EXHAUSTION_LEVEL = 100;
+// The amount of money a player starts with.
+export const MONEY_STARTING = 100;
 
 // Leveling up XP scaling
 

@@ -1,7 +1,11 @@
 import mongoose from 'mongoose';
 import { skillsSchema } from './skills';
 import { energySchema } from './energy';
-import { ENERGY_MAX, HEALTH_MAX_BASE } from '../../constants/game-constants';
+import {
+  ENERGY_MAX,
+  HEALTH_MAX_BASE,
+  MONEY_STARTING,
+} from '../../constants/game-constants';
 import { ISkills } from './skills';
 import { IEnergy } from './energy';
 import type { Document, Types } from 'mongoose';
@@ -15,9 +19,17 @@ export type IUser = {
   isVerified: boolean;
   emailChallenge?: string;
 
+  money: number;
   health: number;
   energy: IEnergy;
   skills: ISkills;
+
+  addMoney: (amount: number) => void;
+  removeMoney: (amount: number) => void;
+
+  addHealth: (amount: number) => void;
+  removeHealth: (amount: number) => void;
+  setHealth: (amount: number) => void;
 };
 
 const userSchema = new mongoose.Schema<IUser>(
@@ -54,6 +66,11 @@ const userSchema = new mongoose.Schema<IUser>(
     },
 
     // Skills and stats
+    money: {
+      type: Number,
+      required: true,
+      default: MONEY_STARTING,
+    },
     health: {
       type: Number,
       required: true,
@@ -70,7 +87,26 @@ const userSchema = new mongoose.Schema<IUser>(
       default: () => ({}),
     },
   },
-  { timestamps: true },
+  {
+    timestamps: true,
+    methods: {
+      addMoney: function (amount: number) {
+        this.money += amount;
+      },
+      removeMoney: function (amount: number) {
+        this.money -= amount;
+      },
+      addHealth: function (amount: number) {
+        this.health += amount;
+      },
+      removeHealth: function (amount: number) {
+        this.health -= amount;
+      },
+      setHealth: function (amount: number) {
+        this.health = amount;
+      },
+    },
+  },
 );
 
 userSchema.virtual('id').get(function () {

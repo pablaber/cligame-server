@@ -5,6 +5,7 @@ import { Encounter } from '../combat/Encounter';
 import type { Enemy } from '../combat/Enemy';
 import { UserDocument } from '../../models/user/user';
 import { NotFoundError } from '../../utils/errors';
+import { randomInRange } from '../../utils/app-utils';
 
 type FightActionOptions = {
   enemyId?: string;
@@ -50,11 +51,19 @@ export class FightAction extends ActionBase {
 
     user.skills.strength.xp += encounterResult.xp;
     user.skills.defense.xp += Math.floor(encounterResult.xp / 2);
-    user.health = Math.max(encounterResult.playerHealth, 0);
+    user.setHealth(Math.max(encounterResult.playerHealth, 0));
+
+    const moneyGained = randomInRange(enemy.money);
+    user.addMoney(moneyGained);
 
     let message: string;
     if (encounterResult.playerWon) {
-      message = `You fought a ${enemy.name} and won ${encounterResult.xp} XP.`;
+      message = `You fought a ${enemy.name} and gained ${encounterResult.xp} XP`;
+      if (moneyGained > 0) {
+        message += ` and ${moneyGained} gold.`;
+      } else {
+        message += '.';
+      }
     } else {
       message = `You fought a ${enemy.name} and lost.`;
     }
