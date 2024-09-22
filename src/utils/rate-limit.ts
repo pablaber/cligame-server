@@ -1,6 +1,7 @@
 import { createMiddleware } from 'hono/factory';
 import { getConnInfo } from '@hono/node-server/conninfo';
 import { MemoryStore } from './MemoryStore';
+import { RateLimitExceededError } from './errors';
 
 type RateLimitOptions = {
   windowInMs: number;
@@ -36,18 +37,16 @@ export function rateLimit(options: RateLimitOptions) {
     const key = `rate-limit:${ip}`;
 
     // Get the entries for the IP
-    const entriesInWindow = rateLimitEntriesInWindow(
-      store.get(key) || [],
-      windowInMs,
-    );
+    const totalEntries = store.get(key) || [];
+    const entriesInWindow = rateLimitEntriesInWindow(totalEntries, windowInMs);
 
     if (entriesInWindow.length >= limitInWindow) {
-      return c.json(
-        {
-          message: 'Too many requests',
+      throw new RateLimitExceededError('Rate limit exceeded', {
+        privateContext: {
+          ip,
+          entriesInWindow,
         },
-        429,
-      );
+      });
     }
 
     // Add the current timestamp to the entries

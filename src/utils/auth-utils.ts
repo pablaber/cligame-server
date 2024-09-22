@@ -8,6 +8,7 @@ import {
   REFRESH_TOKEN_BYTES,
   EMAIL_CHALLENGE_BYTES,
 } from '../constants/api-constants';
+import { UnauthorizedError } from './errors';
 
 type JwtPayload = {
   sub: string;
@@ -51,13 +52,17 @@ export function generateAccessToken(options: GenerateAccessTokenOptions) {
   return sign(payload, JWT_SIGNING_SECRET, 'HS256');
 }
 
-type ValidateError = {
-  error: string;
-};
+const UnauthorizedErrorWithContext = (context: any) =>
+  new UnauthorizedError('The request is not authorized.', {
+    privateContext: context,
+  });
 
-type ValidateAuthResponse = [ValidateError, null] | [null, JwtPayload];
-
-export async function validateAuth(c: Context): Promise<ValidateAuthResponse> {
+/**
+ * Validates the authentication of a request.
+ * @throws {UnauthorizedError} if the authentication is invalid
+ */
+export async function validateAuth(c: Context): Promise<JwtPayload> {
+  const GENERIC_MESSAGE = 'The request is not authorized.';
   const { JWT_SIGNING_SECRET } = process.env;
   if (!JWT_SIGNING_SECRET) {
     throw new Error('JWT_SIGNING_SECRET is not set');
@@ -65,13 +70,16 @@ export async function validateAuth(c: Context): Promise<ValidateAuthResponse> {
 
   const authHeader = c.req.header('Authorization');
   if (!authHeader) {
-    return [{ error: 'Unauthorized' }, null];
+    throw UnauthorizedErrorWithContext({ reason: 'No Authorization Header' });
   }
 
   const [type, token] = authHeader.split(' ');
 
   if (type.toLowerCase() !== 'bearer') {
-    return [{ error: 'Unauthorized' }, null];
+    throw UnauthorizedErrorWithContext({
+      reason: 'Invalid Authorization Type',
+      type,
+    });
   }
 
   let payload: JwtPayload;
@@ -83,11 +91,14 @@ export async function validateAuth(c: Context): Promise<ValidateAuthResponse> {
       errorName = error.name;
     }
 
-    console.log('JWT Validation Error:', errorName);
-    return [{ error: 'Unauthorized' }, null];
+    throw UnauthorizedErrorWithContext({
+      reason: 'JWT Validation Error',
+      errorName,
+      error,
+    });
   }
 
-  return [null, payload];
+  return payload;
 }
 
 /**

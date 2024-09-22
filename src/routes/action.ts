@@ -4,6 +4,7 @@ import { type StatusCode } from 'hono/utils/http-status';
 import { validateAuth } from '../utils/auth-utils';
 import { executeAction } from '../game/actions';
 import { User } from '../models';
+import { NotFoundError } from '../utils/errors';
 
 const actionRouter = new Hono();
 
@@ -13,18 +14,15 @@ actionRouter.post('/:actionId', async (c) => {
   try {
     body = await c.req.json();
   } catch {}
+  const auth = await validateAuth(c);
 
-  const [err, auth] = await validateAuth(c);
-  if (err) {
-    return c.json({ message: 'Unauthorized' }, 401);
-  }
   const { userId } = auth;
 
   const result = await executeAction(actionId, userId, body);
 
   const user = await User.findById(userId);
   if (!user) {
-    return c.json({ message: 'User not found' }, 404);
+    throw new NotFoundError('User not found');
   }
 
   let statusCode = 200 as StatusCode;

@@ -20,4 +20,4 @@ export class HealAction extends ActionBase {
 
     return { success: true, message: 'You have been healed' };
   }
-};
+}

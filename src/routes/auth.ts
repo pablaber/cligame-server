@@ -23,6 +23,12 @@ import {
   REGISTER_RATE_LIMIT_WINDOW_MS,
 } from '../constants/api-constants';
 import { validateJsonBody, validateQueryParams } from '../utils/route-utils';
+import {
+  BadRequestError,
+  InternalServerError,
+  NotFoundError,
+  UnauthorizedError,
+} from '../utils/errors';
 
 const authRouter = new Hono();
 
@@ -43,46 +49,35 @@ authRouter.post(
     }),
   ),
   async (c) => {
-    const body = await c.req.json();
-    if (!body.username || !body.email || !body.password) {
-      return c.json({ message: 'Missing required fields' }, 400);
-    }
-
+    const body = await c.req.json<{
+      username: string;
+      email: string;
+      password: string;
+    }>();
     const { username, email, password } = body;
 
     const existingUser = await User.findOne({ username });
     if (existingUser) {
-      return c.json({ message: 'Username already exists' }, 400);
+      throw new BadRequestError('Username already exists');
     }
 
     const existingEmail = await User.findOne({ email });
     if (existingEmail) {
-      return c.json({ message: 'Email already exists' }, 400);
+      throw new BadRequestError('Email already exists');
     }
 
     const salt = randomBytes(PASSWORD_SALT_BYTES).toString('hex');
     const passwordHash = generatePasswordHash(password, salt);
 
-    try {
-      const user = new User({
-        username,
-        email,
-        passwordHash,
-        passwordSalt: salt,
-        emailChallenge: generateEmailChallenge(),
-      });
-      await user.save();
-      console.log('User registered successfully', user);
-      return c.json({ user: user.toJSON() });
-    } catch (error) {
-      if (error instanceof Error && 'message' in error) {
-        return c.json(
-          { message: 'Error registering user', error: error.message },
-          500,
-        );
-      }
-      return c.json({ message: 'Error registering user', error: error }, 500);
-    }
+    const user = new User({
+      username,
+      email,
+      passwordHash,
+      passwordSalt: salt,
+      emailChallenge: generateEmailChallenge(),
+    });
+    await user.save();
+    return c.json({ user: user.toJSON() });
   },
 );
 
@@ -94,7 +89,7 @@ authRouter.post(
   validateJsonBody(
     z.object({
       email: z.string().email(),
-      password: z.string().min(8),
+      password: z.string(),
     }),
   ),
   async (c) => {
@@ -105,12 +100,12 @@ authRouter.post(
 
     const user = await User.findOne({ email });
     if (!user) {
-      return c.json({ message: 'User not found' }, 404);
+      throw new NotFoundError('User not found');
     }
 
     const passwordHash = generatePasswordHash(password, user.passwordSalt);
     if (passwordHash !== user.passwordHash) {
-      return c.json({ message: 'Invalid password' }, 401);
+      throw new UnauthorizedError('Invalid password');
     }
 
     const token = new Token({
@@ -154,13 +149,20 @@ authRouter.get(
   async (c) => {
     const { email, challenge } = c.req.query();
 
+    const GENERIC_UNAUTHORIZED_MESSAGE =
+      "You're probably doing something you shouldn't be.";
+
     const user = await User.findOne({ email });
     if (!user) {
-      return c.json({ message: 'User not found' }, 404);
+      throw new UnauthorizedError(GENERIC_UNAUTHORIZED_MESSAGE, {
+        privateContext: { cause: 'User not found', email, challenge },
+      });
     }
 
     if (user.emailChallenge !== challenge) {
-      return c.json({ message: 'Invalid challenge' }, 401);
+      throw new UnauthorizedError(GENERIC_UNAUTHORIZED_MESSAGE, {
+        privateContext: { cause: 'Invalid challenge', email, challenge },
+      });
     }
 
     delete user.emailChallenge;
@@ -185,18 +187,38 @@ authRouter.post(
   async (c) => {
     const { refreshToken } = await c.req.json<{ refreshToken: string }>();
 
+    const GENERIC_UNAUTHORIZED_MESSAGE =
+      "You're probably doing something you shouldn't be.";
+
     const token = await Token.findOne({ refreshToken });
     if (!token) {
-      return c.json({ message: 'Invalid refresh token' }, 401);
+      throw new UnauthorizedError(GENERIC_UNAUTHORIZED_MESSAGE, {
+        privateContext: { cause: 'Refresh token not found', refreshToken },
+      });
     }
 
     if (token.expiresAt < new Date()) {
-      return c.json({ message: 'Refresh token expired' }, 401);
+      throw new UnauthorizedError('Refresh Token Expired', {
+        privateContext: {
+          cause: 'Refresh token expired',
+          tokenId: token._id,
+          refreshToken,
+          expiresAt: token.expiresAt,
+        },
+      });
     }
 
     const user = await User.findById(token.userId);
     if (!user) {
-      return c.json({ message: 'User not found' }, 404);
+      throw new InternalServerError({
+        privateContext: {
+          cause:
+            'User associated with refresh token not found. This should never happen.',
+          userId: token.userId,
+          tokenId: token._id,
+          refreshToken,
+        },
+      });
     }
 
     const accessToken = await generateAccessToken({
@@ -215,15 +237,11 @@ authRouter.post(
 );
 
 authRouter.post('/logout', async (c) => {
-  const [err, auth] = await validateAuth(c);
-  if (err) {
-    return c.json({ message: 'Unauthorized' }, 401);
-  }
-
+  const auth = await validateAuth(c);
   const { refreshTokenId } = auth;
   const token = await Token.findById(refreshTokenId);
   if (!token) {
-    return c.json({ message: 'Token not found' }, 404);
+    throw new NotFoundError('Token not found');
   }
 
   await token.deleteOne();

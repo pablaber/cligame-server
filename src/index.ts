@@ -9,6 +9,7 @@ config();
 import authRouter from './routes/auth';
 import actionRouter from './routes/action';
 import tavernRouter from './routes/tavern';
+import { AppError, InternalServerError } from './utils/errors';
 
 async function main() {
   const { MONGO_URI } = process.env;
@@ -38,6 +39,20 @@ async function main() {
   app.route('/auth', authRouter);
   app.route('/action', actionRouter);
   app.route('/tavern', tavernRouter);
+
+  app.onError((err, c) => {
+    if (err instanceof AppError) {
+      console.log(err.toLog());
+      return c.json(err.toJSON(), err.statusCode);
+    }
+    const error = new InternalServerError({
+      privateContext: {
+        cause: err,
+      },
+    });
+    console.log(error.toLog());
+    return c.json(error.toJSON(), error.statusCode);
+  });
 
   serve({
     fetch: app.fetch,

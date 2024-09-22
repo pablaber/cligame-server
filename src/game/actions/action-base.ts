@@ -1,4 +1,3 @@
-import type { Document, Types } from 'mongoose';
 import type { StatusCode } from 'hono/utils/http-status';
 import type { ISkills } from '../../models/user/skills';
 import { User } from '../../models';
