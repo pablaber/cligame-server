@@ -43,14 +43,14 @@ export class ActionBase {
     const { requirements = [] } = this;
     return requirements.every((requirement) => {
       const { skill, type, level } = requirement;
-      const userLevel = user.skills[skill];
+      const characterLevel = user.character.skills[skill];
       switch (type) {
         case 'minimum':
-          return userLevel.level >= level;
+          return characterLevel.level >= level;
         case 'maximum':
-          return userLevel.level <= level;
+          return characterLevel.level <= level;
         case 'exact':
-          return userLevel.level === level;
+          return characterLevel.level === level;
         default:
           return false;
       }
@@ -58,7 +58,7 @@ export class ActionBase {
   }
 
   private meetsActionEnergyRequirements(user: UserDocument): boolean {
-    return user.energy.currentEnergy >= this.energyCost;
+    return user.character.energy.currentEnergy >= this.energyCost;
   }
 
   toJSON() {
@@ -91,7 +91,7 @@ export class ActionBase {
         privateContext: {
           cause: 'User does not meet action level requirements',
           userId,
-          userSkills: user.skills,
+          characterSkills: user.character.skills,
           actionRequirements: this.requirements,
         },
       });
@@ -104,7 +104,7 @@ export class ActionBase {
           privateContext: {
             cause: 'User does not meet action energy requirements',
             userId,
-            userEnergy: user.energy,
+            characterEnergy: user.character.energy,
             actionEnergyCost: this.energyCost,
           },
         },
@@ -124,7 +124,7 @@ export class ActionBase {
     const result = await this.run(user, options);
 
     if (result.success) {
-      user.energy.updateEnergy(-this.energyCost);
+      user.character.energy.updateEnergy(-this.energyCost);
     }
 
     await user.save();

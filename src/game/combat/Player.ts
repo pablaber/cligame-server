@@ -11,11 +11,10 @@ type PlayerOptions = {
 export class Player extends Fighter {
   static fromUser(user: IUser) {
     return new Player({
-      // TODO: update to character name
-      name: user.email,
-      health: user.health,
-      strength: user.skills.strength.level,
-      defense: user.skills.defense.level,
+      name: user.character.name,
+      health: user.character.health,
+      strength: user.character.skills.strength.level,
+      defense: user.character.skills.defense.level,
     });
   }
 

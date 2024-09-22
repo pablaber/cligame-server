@@ -49,10 +49,10 @@ export class FightAction extends ActionBase {
     const encounter = new Encounter(enemy, player);
     const encounterResult = await encounter.start();
 
-    user.skills.strength.xp += encounterResult.xp;
-    user.skills.defense.xp += Math.floor(encounterResult.xp / 2);
-    user.setHealth(Math.max(encounterResult.playerHealth, 0));
-    user.addMoney(enemy.money);
+    user.character.skills.strength.xp += encounterResult.xp;
+    user.character.skills.defense.xp += Math.floor(encounterResult.xp / 2);
+    user.character.setHealth(Math.max(encounterResult.playerHealth, 0));
+    user.character.addMoney(enemy.money);
 
     let message: string;
     if (encounterResult.playerWon) {
@@ -66,7 +66,7 @@ export class FightAction extends ActionBase {
       message = `You fought a ${enemy.name} and lost.`;
     }
 
-    message += ` You have ${user.health} health remaining.`;
+    message += ` You have ${user.character.health} health remaining.`;
 
     return {
       success: true,

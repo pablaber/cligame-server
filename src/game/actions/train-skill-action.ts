@@ -27,8 +27,10 @@ export class TrainSkillAction extends ActionBase {
   }
 
   async run(user: UserDocument): Promise<ActionResult> {
-    user.skills[this.skill] = user.skills[this.skill] || { xp: 0 };
-    user.skills[this.skill].xp += 10;
+    user.character.skills[this.skill] = user.character.skills[this.skill] || {
+      xp: 0,
+    };
+    user.character.skills[this.skill].xp += 10;
 
     return {
       success: true,

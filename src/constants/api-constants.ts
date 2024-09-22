@@ -10,6 +10,8 @@ export const EMAIL_CHALLENGE_BYTES = 32;
 // Lengths
 export const PASSWORD_MIN_LENGTH = 8;
 export const PASSWORD_MAX_LENGTH = 128;
+export const CHARACTER_NAME_MIN_LENGTH = 3;
+export const CHARACTER_NAME_MAX_LENGTH = 20;
 
 // Rate Limiting
 export const REGISTER_RATE_LIMIT_WINDOW_MS = minutesToMilliseconds(60);

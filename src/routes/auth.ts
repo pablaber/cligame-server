@@ -19,6 +19,8 @@ import {
   PASSWORD_MAX_LENGTH,
   REGISTER_RATE_LIMIT_LIMIT,
   REGISTER_RATE_LIMIT_WINDOW_MS,
+  CHARACTER_NAME_MIN_LENGTH,
+  CHARACTER_NAME_MAX_LENGTH,
 } from '../constants/api-constants';
 import { validateJsonBody, validateQueryParams } from '../utils/route-utils';
 import {
@@ -42,6 +44,10 @@ authRouter.post(
   }),
   validateJsonBody(
     z.object({
+      characterName: z
+        .string()
+        .min(CHARACTER_NAME_MIN_LENGTH)
+        .max(CHARACTER_NAME_MAX_LENGTH),
       email: z.string().email(),
       password: z.string().min(PASSWORD_MIN_LENGTH).max(PASSWORD_MAX_LENGTH),
     }),
@@ -50,8 +56,9 @@ authRouter.post(
     const body = await c.req.json<{
       email: string;
       password: string;
+      characterName: string;
     }>();
-    const { email, password } = body;
+    const { email, password, characterName } = body;
 
     const existingUser = await User.findOne({ email });
     if (existingUser) {
@@ -72,6 +79,9 @@ authRouter.post(
         passwordSalt: salt,
         passwordHash,
         emailChallenge: generateEmailChallenge(),
+      },
+      character: {
+        name: characterName,
       },
     });
     await user.save();

@@ -2,6 +2,7 @@ import mongoose from 'mongoose';
 import { skillsSchema, type ISkills } from './skills';
 import { energySchema, type IEnergy } from './energy';
 import { accountSchema, type IAccount } from './account';
+import { characterSchema, type ICharacter } from './character';
 import {
   HEALTH_MAX_BASE,
   MONEY_STARTING,
@@ -13,11 +14,7 @@ export type IUser = {
   email: string;
 
   account: IAccount;
-
-  money: number;
-  health: number;
-  energy: IEnergy;
-  skills: ISkills;
+  character: ICharacter;
 
   addMoney: (amount: number) => void;
   removeMoney: (amount: number) => void;
@@ -44,47 +41,12 @@ const userSchema = new mongoose.Schema<IUser>(
     },
 
     // Skills and stats
-    money: {
-      type: Number,
+    character: {
+      type: characterSchema,
       required: true,
-      default: MONEY_STARTING,
-    },
-    health: {
-      type: Number,
-      required: true,
-      default: HEALTH_MAX_BASE,
-    },
-    energy: {
-      type: energySchema,
-      required: true,
-      default: () => ({}),
-    },
-    skills: {
-      type: skillsSchema,
-      required: true,
-      default: () => ({}),
     },
   },
-  {
-    timestamps: true,
-    methods: {
-      addMoney: function (amount: number) {
-        this.money += amount;
-      },
-      removeMoney: function (amount: number) {
-        this.money -= amount;
-      },
-      addHealth: function (amount: number) {
-        this.health += amount;
-      },
-      removeHealth: function (amount: number) {
-        this.health -= amount;
-      },
-      setHealth: function (amount: number) {
-        this.health = amount;
-      },
-    },
-  },
+  { timestamps: true },
 );
 
 userSchema.virtual('id').get(function () {
