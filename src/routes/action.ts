@@ -3,8 +3,9 @@ import { validateAuth } from '../utils/auth-utils';
 import { executeAction } from '../game/actions';
 import { User } from '../models';
 import { InternalServerError } from '../utils/errors';
+import { HonoEnvironment } from '../utils/types';
 
-const actionRouter = new Hono();
+const actionRouter = new Hono<HonoEnvironment>();
 
 actionRouter.post('/:actionId', async (c) => {
   const { actionId } = c.req.param();

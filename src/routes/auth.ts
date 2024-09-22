@@ -29,8 +29,9 @@ import {
   NotFoundError,
   UnauthorizedError,
 } from '../utils/errors';
+import type { HonoEnvironment } from '../utils/types';
 
-const authRouter = new Hono();
+const authRouter = new Hono<HonoEnvironment>();
 
 /**
  * Registers a new user.

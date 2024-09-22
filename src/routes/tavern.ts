@@ -4,8 +4,9 @@ import { validateAuth } from '../utils/auth-utils';
 import { User } from '../models';
 import { AllActions } from '../game/actions';
 import { NotFoundError } from '../utils/errors';
+import type { HonoEnvironment } from '../utils/types';
 
-const tavernRouter = new Hono();
+const tavernRouter = new Hono<HonoEnvironment>();
 
 tavernRouter.get('/', async (c) => {
   const auth = await validateAuth(c);
