@@ -3,15 +3,15 @@ import { z } from 'zod';
 import { randomBytes } from 'crypto';
 import { addDays } from 'date-fns';
 
-import { rateLimit } from '../utils/rate-limit';
-import { User, Token } from '../models';
+import { rateLimit } from '../../utils/rate-limit';
+import { User, Token } from '../../models';
 import {
   generateAccessToken,
   validateAuth,
   generatePasswordHash,
   generateEmailChallenge,
   generateRefreshToken,
-} from '../utils/auth-utils';
+} from '../../utils/auth-utils';
 import {
   REFRESH_TOKEN_EXPIRATION_DAYS,
   PASSWORD_SALT_BYTES,
@@ -21,15 +21,15 @@ import {
   REGISTER_RATE_LIMIT_WINDOW_MS,
   CHARACTER_NAME_MIN_LENGTH,
   CHARACTER_NAME_MAX_LENGTH,
-} from '../constants/api-constants';
-import { validateJsonBody, validateQueryParams } from '../utils/route-utils';
+} from '../../constants/api-constants';
+import { validateJsonBody, validateQueryParams } from '../../utils/route-utils';
 import {
   BadRequestError,
   InternalServerError,
   NotFoundError,
   UnauthorizedError,
-} from '../utils/errors';
-import type { HonoEnvironment } from '../utils/types';
+} from '../../utils/errors';
+import type { HonoEnvironment } from '../../utils/types';
 
 const authRouter = new Hono<HonoEnvironment>();
 
