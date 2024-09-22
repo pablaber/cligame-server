@@ -37,3 +37,4 @@ export function validateJsonBody(schema: ZodSchema) {
     return parsed.data;
   });
 }
+

@@ -47,10 +47,10 @@ export class ActionBase {
     this.label = options.label;
     this.description = options.description;
     this.energyCost = options.energyCost;
-    this.requirements = options.requirements;
+    this.requirements = options.requirements || [];
   }
 
-  private meetsActionLevelRequirements(user: UserDocument): boolean {
+  meetsActionLevelRequirements(user: UserDocument): boolean {
     const { requirements = [] } = this;
     return requirements.every((requirement) => {
       const { skill, type, level } = requirement;

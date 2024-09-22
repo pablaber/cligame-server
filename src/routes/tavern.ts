@@ -3,10 +3,6 @@ import { Hono } from 'hono';
 import { validateAuth } from '../utils/auth-utils';
 import { User } from '../models';
 import { AllActions } from '../game/actions';
-import {
-  actionToJSON,
-  meetsActionLevelRequirements,
-} from '../game/actions/action-base';
 
 const tavernRouter = new Hono();
 
@@ -23,13 +19,11 @@ tavernRouter.get('/', async (c) => {
     return c.json({ message: 'User not found' }, 404);
   }
 
-  const { skills } = user;
   const availableActions = AllActions.filter((a) =>
-    meetsActionLevelRequirements(a, skills),
+    a.meetsActionLevelRequirements(user),
   );
 
-  const actionsJSON = availableActions.map(actionToJSON);
-
+  const actionsJSON = availableActions.map((a) => a.toJSON());
   return c.json({ user: user.toJSON(), actions: actionsJSON });
 });
 

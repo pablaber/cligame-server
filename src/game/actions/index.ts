@@ -4,10 +4,10 @@ import { FightAction } from './fight-action';
 import { HealAction } from './heal-action';
 
 export const AllActions: ActionBase[] = [
-  HealAction,
-  FightAction,
-  TrainSkillAction('strength', { energyCost: 3 }),
-  TrainSkillAction('defense', { energyCost: 3 }),
+  new HealAction(),
+  new FightAction(),
+  new TrainSkillAction('strength', { energyCost: 3 }),
+  new TrainSkillAction('defense', { energyCost: 3 }),
 ];
 
 const actionsMap = AllActions.reduce(
@@ -21,12 +21,12 @@ const actionsMap = AllActions.reduce(
 export async function executeAction(
   actionId: string,
   userId: string,
-  requestBody?: Record<string, any>,
+  actionOptions?: Record<string, any>,
 ): Promise<ActionResult> {
   const action = actionsMap[actionId];
   if (!action) {
     return { success: false, message: 'Action not found', code: 404 };
   }
 
-  return action.execute(userId, requestBody);
+  return action.execute(userId, actionOptions);
 }

@@ -1,36 +1,32 @@
 import { ActionBase, ActionResult } from './action-base';
-import { User } from '../../models';
 import { newEnemy, newRandomEnemy } from '../combat/enemies';
 import { Player } from '../combat/Player';
 import { Encounter } from '../combat/Encounter';
 import type { Enemy } from '../combat/Enemy';
-import { loadUserCheckRequirements } from './action-base';
+import { UserDocument } from '../../models/user/user';
 
-type FightActionRequestBody = {
+type FightActionOptions = {
   enemyId?: string;
 };
 
-export const FightAction: ActionBase = {
-  id: 'fight',
-  label: 'Fight Enemy',
-  energyCost: 5,
-  requirements: [],
+/**
+ * Fights an enemy and rewards the user with XP and other rewards.
+ */
+export class FightAction extends ActionBase {
+  constructor() {
+    super({
+      id: 'fight',
+      label: 'Fight Enemy',
+      energyCost: 5,
+      requirements: [],
+    });
+  }
 
-  async execute(
-    userId: string,
-    options?: FightActionRequestBody,
+  async run(
+    user: UserDocument,
+    options?: FightActionOptions,
   ): Promise<ActionResult> {
-    const [err, user] = await loadUserCheckRequirements(this, userId);
-    if (err || !user) {
-      return err as ActionResult;
-    }
-
-    if (user.health <= 0) {
-      return { success: false, message: 'You are dead' };
-    }
-
     const enemyId = options?.enemyId;
-
     let enemy: Enemy;
     if (enemyId) {
       enemy = newEnemy(enemyId);
@@ -44,21 +40,18 @@ export const FightAction: ActionBase = {
 
     const player = Player.fromUser(user);
     const encounter = new Encounter(enemy, player);
-    const result = await encounter.start();
+    const encounterResult = await encounter.start();
 
-    user.skills.strength.xp += result.xp;
-    user.skills.defense.xp += Math.floor(result.xp / 2);
-    user.health = Math.max(result.playerHealth, 0);
-    user.energy.updateEnergy(-this.energyCost);
-
-    await user.save();
+    user.skills.strength.xp += encounterResult.xp;
+    user.skills.defense.xp += Math.floor(encounterResult.xp / 2);
+    user.health = Math.max(encounterResult.playerHealth, 0);
 
     return {
-      success: result.playerWon,
+      success: encounterResult.playerWon,
       message: 'Encounter complete.',
       extraData: {
-        log: result.log,
+        log: encounterResult.log,
       },
     };
-  },
-};
+  }
+}
