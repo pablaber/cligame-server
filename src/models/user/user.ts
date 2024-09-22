@@ -1,23 +1,18 @@
 import mongoose from 'mongoose';
-import { skillsSchema } from './skills';
-import { energySchema } from './energy';
+import { skillsSchema, type ISkills } from './skills';
+import { energySchema, type IEnergy } from './energy';
+import { accountSchema, type IAccount } from './account';
 import {
-  ENERGY_MAX,
   HEALTH_MAX_BASE,
   MONEY_STARTING,
 } from '../../constants/game-constants';
-import { ISkills } from './skills';
-import { IEnergy } from './energy';
 import type { Document, Types } from 'mongoose';
 
 export type IUser = {
-  name: string;
-  username: string;
+  id: string;
   email: string;
-  passwordHash: string;
-  passwordSalt: string;
-  isVerified: boolean;
-  emailChallenge?: string;
+
+  account: IAccount;
 
   money: number;
   health: number;
@@ -34,35 +29,18 @@ export type IUser = {
 
 const userSchema = new mongoose.Schema<IUser>(
   {
-    name: {
-      type: String,
-      required: false,
-    },
-    username: {
-      type: String,
-      required: true,
-      unique: true,
-    },
+    // Main index fields
     email: {
       type: String,
       required: true,
       unique: true,
+      index: true,
     },
-    passwordHash: {
-      type: String,
+
+    // Account Related Fields
+    account: {
+      type: accountSchema,
       required: true,
-    },
-    passwordSalt: {
-      type: String,
-      required: true,
-    },
-    isVerified: {
-      type: Boolean,
-      default: false,
-    },
-    emailChallenge: {
-      type: String,
-      required: false,
     },
 
     // Skills and stats
@@ -116,9 +94,7 @@ userSchema.virtual('id').get(function () {
 userSchema.set('toJSON', {
   virtuals: true,
   transform: function (doc, ret) {
-    delete ret.passwordHash;
-    delete ret.passwordSalt;
-    delete ret.emailChallenge;
+    delete ret.account;
     delete ret._id;
     delete ret.__v;
     return ret;

@@ -14,7 +14,6 @@ type JwtPayload = {
   sub: string;
   refreshTokenId: string;
   email: string;
-  username: string;
   userId: string;
   isVerified: boolean;
   iat: number;
@@ -25,7 +24,6 @@ type GenerateAccessTokenOptions = {
   refreshTokenId: string;
   userId: string;
   email: string;
-  username: string;
   isVerified: boolean;
 };
 
@@ -43,7 +41,6 @@ export function generateAccessToken(options: GenerateAccessTokenOptions) {
     sub: options.userId,
     refreshTokenId: options.refreshTokenId,
     email: options.email,
-    username: options.username,
     userId: options.userId,
     isVerified: options.isVerified,
     iat: millisecondsToSeconds(now.getTime()),
@@ -62,7 +59,6 @@ const UnauthorizedErrorWithContext = (context: any) =>
  * @throws {UnauthorizedError} if the authentication is invalid
  */
 export async function validateAuth(c: Context): Promise<JwtPayload> {
-  const GENERIC_MESSAGE = 'The request is not authorized.';
   const { JWT_SIGNING_SECRET } = process.env;
   if (!JWT_SIGNING_SECRET) {
     throw new Error('JWT_SIGNING_SECRET is not set');

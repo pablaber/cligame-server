@@ -7,8 +7,8 @@ import { NotFoundError } from '../../utils/errors';
 export const AllActions: ActionBase[] = [
   new HealAction(),
   new FightAction(),
-  new TrainSkillAction('strength', { energyCost: 3 }),
-  new TrainSkillAction('defense', { energyCost: 3 }),
+  new TrainSkillAction('strength', { energyCost: 2 }),
+  new TrainSkillAction('defense', { energyCost: 2 }),
 ];
 
 const actionsMap = AllActions.reduce(

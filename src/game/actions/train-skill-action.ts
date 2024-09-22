@@ -20,7 +20,7 @@ export class TrainSkillAction extends ActionBase {
     super({
       id: `train${upperFirst(skill)}`,
       label: `Train ${upperFirst(skill)}`,
-      energyCost: 1,
+      energyCost: options?.energyCost || 1,
       requirements: options?.levelRequirements || [],
     });
     this.skill = skill;

@@ -15,8 +15,6 @@ import {
 import {
   REFRESH_TOKEN_EXPIRATION_DAYS,
   PASSWORD_SALT_BYTES,
-  USERNAME_MIN_LENGTH,
-  USERNAME_MAX_LENGTH,
   PASSWORD_MIN_LENGTH,
   PASSWORD_MAX_LENGTH,
   REGISTER_RATE_LIMIT_LIMIT,
@@ -44,22 +42,20 @@ authRouter.post(
   }),
   validateJsonBody(
     z.object({
-      username: z.string().min(USERNAME_MIN_LENGTH).max(USERNAME_MAX_LENGTH),
       email: z.string().email(),
       password: z.string().min(PASSWORD_MIN_LENGTH).max(PASSWORD_MAX_LENGTH),
     }),
   ),
   async (c) => {
     const body = await c.req.json<{
-      username: string;
       email: string;
       password: string;
     }>();
-    const { username, email, password } = body;
+    const { email, password } = body;
 
-    const existingUser = await User.findOne({ username });
+    const existingUser = await User.findOne({ email });
     if (existingUser) {
-      throw new BadRequestError('Username already exists');
+      throw new BadRequestError('Email already exists');
     }
 
     const existingEmail = await User.findOne({ email });
@@ -71,11 +67,12 @@ authRouter.post(
     const passwordHash = generatePasswordHash(password, salt);
 
     const user = new User({
-      username,
       email,
-      passwordHash,
-      passwordSalt: salt,
-      emailChallenge: generateEmailChallenge(),
+      account: {
+        passwordSalt: salt,
+        passwordHash,
+        emailChallenge: generateEmailChallenge(),
+      },
     });
     await user.save();
     return c.json({ user: user.toJSON() });
@@ -104,8 +101,10 @@ authRouter.post(
       throw new NotFoundError('User not found');
     }
 
-    const passwordHash = generatePasswordHash(password, user.passwordSalt);
-    if (passwordHash !== user.passwordHash) {
+    const { passwordSalt, passwordHash } = user.account;
+
+    const calculatedPasswordHash = generatePasswordHash(password, passwordSalt);
+    if (calculatedPasswordHash !== user.account.passwordHash) {
       throw new UnauthorizedError('Invalid password');
     }
 
@@ -122,8 +121,7 @@ authRouter.post(
       refreshTokenId: token._id.toString(),
       userId: user._id.toString(),
       email: user.email,
-      username: user.username,
-      isVerified: user.isVerified,
+      isVerified: user.account.isVerified,
     });
 
     return c.json({
@@ -160,14 +158,14 @@ authRouter.get(
       });
     }
 
-    if (user.emailChallenge !== challenge) {
+    if (user.account.emailChallenge !== challenge) {
       throw new UnauthorizedError(GENERIC_UNAUTHORIZED_MESSAGE, {
         privateContext: { cause: 'Invalid challenge', email, challenge },
       });
     }
 
-    delete user.emailChallenge;
-    user.isVerified = true;
+    delete user.account.emailChallenge;
+    user.account.isVerified = true;
 
     await user.save();
 
@@ -226,8 +224,7 @@ authRouter.post(
       refreshTokenId: token._id.toString(),
       userId: user._id.toString(),
       email: user.email,
-      username: user.username,
-      isVerified: user.isVerified,
+      isVerified: user.account.isVerified,
     });
 
     token.lastUsed = new Date();
