@@ -52,15 +52,13 @@ export class FightAction extends ActionBase {
     user.skills.strength.xp += encounterResult.xp;
     user.skills.defense.xp += Math.floor(encounterResult.xp / 2);
     user.setHealth(Math.max(encounterResult.playerHealth, 0));
-
-    const moneyGained = randomInRange(enemy.money);
-    user.addMoney(moneyGained);
+    user.addMoney(enemy.money);
 
     let message: string;
     if (encounterResult.playerWon) {
       message = `You fought a ${enemy.name} and gained ${encounterResult.xp} XP`;
-      if (moneyGained > 0) {
-        message += ` and ${moneyGained} gold.`;
+      if (enemy.money > 0) {
+        message += ` and ${enemy.money} gold.`;
       } else {
         message += '.';
       }
