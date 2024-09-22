@@ -34,6 +34,5 @@ export function newEnemy(enemyId: string): Enemy | null {
 export function newRandomEnemy(): Enemy {
   const enemyName = randomChoice(Object.keys(enemiesMap));
   const enemyOptions = enemiesMap[enemyName];
-  console.log(enemyOptions);
   return new Enemy(enemyOptions);
 }
