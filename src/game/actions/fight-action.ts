@@ -4,6 +4,7 @@ import { Player } from '../combat/Player';
 import { Encounter } from '../combat/Encounter';
 import type { Enemy } from '../combat/Enemy';
 import { UserDocument } from '../../models/user/user';
+import { NotFoundError } from '../../utils/errors';
 
 type FightActionOptions = {
   enemyId?: string;
@@ -29,13 +30,18 @@ export class FightAction extends ActionBase {
     const enemyId = options?.enemyId;
     let enemy: Enemy;
     if (enemyId) {
-      enemy = newEnemy(enemyId);
+      const enemyFromOptions = newEnemy(enemyId);
+      if (!enemyFromOptions) {
+        throw new NotFoundError(`Enemy with ID "${enemyId}" not found`, {
+          privateContext: {
+            cause: 'Enemy not found',
+            enemyId,
+          },
+        });
+      }
+      enemy = enemyFromOptions;
     } else {
       enemy = newRandomEnemy();
-    }
-
-    if (!enemy) {
-      return { success: false, message: 'Enemy not found' };
     }
 
     const player = Player.fromUser(user);
@@ -46,11 +52,20 @@ export class FightAction extends ActionBase {
     user.skills.defense.xp += Math.floor(encounterResult.xp / 2);
     user.health = Math.max(encounterResult.playerHealth, 0);
 
+    let message: string;
+    if (encounterResult.playerWon) {
+      message = `You fought a ${enemy.name} and won ${encounterResult.xp} XP.`;
+    } else {
+      message = `You fought a ${enemy.name} and lost.`;
+    }
+
+    message += ` You have ${user.health} health remaining.`;
+
     return {
-      success: encounterResult.playerWon,
-      message: 'Encounter complete.',
+      success: true,
+      message,
       extraData: {
-        log: encounterResult.log,
+        encounterLog: encounterResult.log,
       },
     };
   }

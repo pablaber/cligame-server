@@ -1,10 +1,8 @@
 import { Hono } from 'hono';
-import { type StatusCode } from 'hono/utils/http-status';
-
 import { validateAuth } from '../utils/auth-utils';
 import { executeAction } from '../game/actions';
 import { User } from '../models';
-import { NotFoundError } from '../utils/errors';
+import { InternalServerError } from '../utils/errors';
 
 const actionRouter = new Hono();
 
@@ -22,14 +20,15 @@ actionRouter.post('/:actionId', async (c) => {
 
   const user = await User.findById(userId);
   if (!user) {
-    throw new NotFoundError('User not found');
+    throw new InternalServerError({
+      privateContext: {
+        cause: 'User not found after action execution. This should not happen.',
+        userId,
+      },
+    });
   }
 
-  let statusCode = 200 as StatusCode;
   const extraData = result.extraData || {};
-  if (!result.success) {
-    statusCode = result.code || 400;
-  }
   const actionResult = {
     success: result.success,
     message: result.message,
@@ -41,7 +40,7 @@ actionRouter.post('/:actionId', async (c) => {
       user: user.toJSON(),
       ...extraData,
     },
-    statusCode,
+    200,
   );
 });
 

@@ -2,6 +2,7 @@ import { ActionBase, ActionResult } from './action-base';
 import { TrainSkillAction } from './train-skill-action';
 import { FightAction } from './fight-action';
 import { HealAction } from './heal-action';
+import { NotFoundError } from '../../utils/errors';
 
 export const AllActions: ActionBase[] = [
   new HealAction(),
@@ -25,7 +26,11 @@ export async function executeAction(
 ): Promise<ActionResult> {
   const action = actionsMap[actionId];
   if (!action) {
-    return { success: false, message: 'Action not found', code: 404 };
+    throw new NotFoundError(`Action with ID ${actionId} not found`, {
+      privateContext: {
+        actionId,
+      },
+    });
   }
 
   return action.execute(userId, actionOptions);

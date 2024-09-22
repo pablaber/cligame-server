@@ -2,23 +2,13 @@ import type { StatusCode } from 'hono/utils/http-status';
 import type { ISkills } from '../../models/user/skills';
 import { User } from '../../models';
 import type { UserDocument } from '../../models/user/user';
+import { ForbiddenError, InternalServerError } from '../../utils/errors';
 
-export type ActionResult =
-  | {
-      success: true;
-      message: string;
-      extraData?: Record<string, any>;
-    }
-  | {
-      success: false;
-      message: string;
-      code?: StatusCode;
-      extraData?: Record<string, any>;
-    };
-
-type LoadUserCheckRequirementsResult =
-  | [null, UserDocument]
-  | [ActionResult, null];
+export type ActionResult = {
+  success: boolean;
+  message: string;
+  extraData?: Record<string, any>;
+};
 
 export type LevelRequirement = {
   type: 'minimum' | 'maximum' | 'exact';
@@ -85,38 +75,43 @@ export class ActionBase {
    * Check if the user meets the requirements for the action. Returns the user
    * if they meet the requirements, otherwise returns an error.
    */
-  async verifyMeetsRequirements(
-    userId: string,
-  ): Promise<LoadUserCheckRequirementsResult> {
+  async verifyMeetsRequirements(userId: string): Promise<UserDocument> {
     const user = await User.findById(userId);
-    // TODO: fatal vs non fatal
     if (!user) {
-      return [{ success: false, message: 'User not found' }, null];
+      throw new InternalServerError({
+        privateContext: {
+          cause: 'User not found. This should not happen.',
+          userId,
+        },
+      });
     }
 
     if (!this.meetsActionLevelRequirements(user)) {
-      return [
-        {
-          success: false,
-          message: 'User does not meet action level requirements',
-          code: 403,
+      throw new ForbiddenError('User does not meet action level requirements', {
+        privateContext: {
+          cause: 'User does not meet action level requirements',
+          userId,
+          userSkills: user.skills,
+          actionRequirements: this.requirements,
         },
-        null,
-      ];
+      });
     }
 
     if (!this.meetsActionEnergyRequirements(user)) {
-      return [
+      throw new ForbiddenError(
+        'User does not meet action energy requirements',
         {
-          success: false,
-          message: 'User does not meet action energy requirements',
-          code: 403,
+          privateContext: {
+            cause: 'User does not meet action energy requirements',
+            userId,
+            userEnergy: user.energy,
+            actionEnergyCost: this.energyCost,
+          },
         },
-        null,
-      ];
+      );
     }
 
-    return [null, user];
+    return user;
   }
 
   async run(user: UserDocument, options?: any): Promise<ActionResult> {
@@ -124,10 +119,7 @@ export class ActionBase {
   }
 
   async execute(userId: string, options?: any): Promise<ActionResult> {
-    const [err, user] = await this.verifyMeetsRequirements(userId);
-    if (err || !user) {
-      return err as ActionResult;
-    }
+    const user = await this.verifyMeetsRequirements(userId);
 
     const result = await this.run(user, options);
 

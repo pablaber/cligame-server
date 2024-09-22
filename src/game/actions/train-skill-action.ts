@@ -30,6 +30,9 @@ export class TrainSkillAction extends ActionBase {
     user.skills[this.skill] = user.skills[this.skill] || { xp: 0 };
     user.skills[this.skill].xp += 10;
 
-    return { success: true, message: `${this.label} successful` };
+    return {
+      success: true,
+      message: `Your ${this.skill} skill increased by 10xp.`,
+    };
   }
 }

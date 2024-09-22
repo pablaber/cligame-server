@@ -13,11 +13,15 @@ export class HealAction extends ActionBase {
 
   async run(user: UserDocument): Promise<ActionResult> {
     if (user.health >= HEALTH_MAX_BASE) {
-      return { success: false, message: 'You have full health' };
+      return { success: false, message: 'You already have full health.' };
     }
 
+    const healthToHeal = HEALTH_MAX_BASE - user.health;
     user.health = HEALTH_MAX_BASE;
 
-    return { success: true, message: 'You have been healed' };
+    return {
+      success: true,
+      message: `You have been healed for ${healthToHeal} health points. You now have ${user.health} health.`,
+    };
   }
 }

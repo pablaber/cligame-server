@@ -23,8 +23,11 @@ function randomChoice<T>(arr: T[]): T {
   return arr[Math.floor(Math.random() * arr.length)];
 }
 
-export function newEnemy(enemyId: string): Enemy {
+export function newEnemy(enemyId: string): Enemy | null {
   const enemyOptions = enemiesMap[enemyId];
+  if (!enemyOptions) {
+    return null;
+  }
   return new Enemy(enemyOptions);
 }
 
