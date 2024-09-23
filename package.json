@@ -5,7 +5,7 @@
     "dev-pretty": "tsx watch src/index.ts | pino-pretty",
     "format": "prettier --write \"src/**/*ts\"",
     "typecheck": "npx tsc --noEmit",
-    "test": "vitest"
+    "test": "LOG_LEVEL=silent JWT_SIGNING_SECRET=test vitest"
   },
   "dependencies": {
     "@hono/node-server": "^1.13.1",
