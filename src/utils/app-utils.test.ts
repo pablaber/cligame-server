@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'vitest';
 
-import { randomInRange } from './app-utils';
+import { randomInRange, boundValue } from './app-utils';
 
 describe('randomInRange', () => {
   test('returns a random number between min and max', () => {
@@ -26,5 +26,13 @@ describe('randomInRange', () => {
     expect(() => randomInRange([10, 1])).toThrow(
       'Min cannot be greater than max',
     );
+  });
+});
+
+describe('boundValue', () => {
+  test('returns a value within the range', () => {
+    expect(boundValue(5, [0, 10])).toBe(5);
+    expect(boundValue(15, [0, 10])).toBe(10);
+    expect(boundValue(-5, [0, 10])).toBe(0);
   });
 });

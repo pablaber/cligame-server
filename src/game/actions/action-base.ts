@@ -58,7 +58,7 @@ export class ActionBase {
   }
 
   private meetsActionEnergyRequirements(user: UserDocument): boolean {
-    return user.character.energy.currentEnergy >= this.energyCost;
+    return user.character.getEnergy() >= this.energyCost;
   }
 
   toJSON() {
@@ -124,7 +124,7 @@ export class ActionBase {
     const result = await this.run(user, options);
 
     if (result.success) {
-      user.character.energy.updateEnergy(-this.energyCost);
+      user.character.removeEnergy(this.energyCost);
     }
 
     await user.save();

@@ -18,8 +18,16 @@ type TestUserOptions = {
   email?: string;
   password?: string;
   characterName?: string;
+  characterMoney?: number;
+  characterHealth?: number;
+  characterEnergy?: number;
+  characterSkills?: {
+    strengthXp?: number;
+    defenseXp?: number;
+  };
 };
 async function createTestUser(options?: TestUserOptions) {
+  // TODO: set energy based on options.characterEnergy
   const passwordSalt = randomBytes(PASSWORD_SALT_BYTES).toString('hex');
   const passwordHash = generatePasswordHash(
     options?.password || 'password',
@@ -33,6 +41,15 @@ async function createTestUser(options?: TestUserOptions) {
     },
     character: {
       name: options?.characterName || 'Test Character',
+      money: options?.characterMoney,
+      health: options?.characterHealth,
+      energy: {
+        valueAtUpdate: options?.characterEnergy,
+      },
+      skills: {
+        strength: { xp: options?.characterSkills?.strengthXp },
+        defense: { xp: options?.characterSkills?.defenseXp },
+      },
     },
   });
   await user.save();
