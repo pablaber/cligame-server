@@ -4,9 +4,11 @@ import { minutesToMilliseconds } from 'date-fns';
 export const ENERGY_REGEN_RATE_MINUTES = 1;
 export const ENERGY_MAX = 100;
 
-// Fighting
-// Base health for the player.
+// Health
 export const HEALTH_MAX_BASE = 20;
+export const HEALTH_REGEN_RATE_MINUTES = 10;
+
+// Fighting
 // The base chance to hit an opposing fighter when at the same level.
 export const CHANCE_TO_HIT_BASE = 0.7;
 // The amount of chance to hit that is added (or subtracted) for each level
@@ -33,4 +35,7 @@ export const LEVEL_XP_SCALING_Y = 1.6;
 
 export const ENERGY_REGEN_RATE_MS = minutesToMilliseconds(
   ENERGY_REGEN_RATE_MINUTES,
+);
+export const HEALTH_REGEN_RATE_MS = minutesToMilliseconds(
+  HEALTH_REGEN_RATE_MINUTES,
 );

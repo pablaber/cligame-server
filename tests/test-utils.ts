@@ -27,7 +27,6 @@ type TestUserOptions = {
   };
 };
 async function createTestUser(options?: TestUserOptions) {
-  // TODO: set energy based on options.characterEnergy
   const passwordSalt = randomBytes(PASSWORD_SALT_BYTES).toString('hex');
   const passwordHash = generatePasswordHash(
     options?.password || 'password',

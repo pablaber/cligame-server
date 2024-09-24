@@ -167,6 +167,10 @@ export function createRegeneratingValueSchema(
   });
 
   regeneratingValueSchema.virtual('nextTickDate').get(function () {
+    const currentValue = this.value();
+    if (currentValue === maxValue) {
+      return null;
+    }
     return addMilliseconds(new Date(), this.nextTick);
   });
 

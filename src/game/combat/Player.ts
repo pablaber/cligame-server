@@ -12,7 +12,7 @@ export class Player extends Fighter {
   static fromUser(user: IUser) {
     return new Player({
       name: user.character.name,
-      health: user.character.health,
+      health: user.character.getHealth(),
       strength: user.character.skills.strength.level,
       defense: user.character.skills.defense.level,
     });

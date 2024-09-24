@@ -5,6 +5,7 @@ import {
   HEALTH_MAX_BASE,
   ENERGY_REGEN_RATE_MS,
   ENERGY_MAX,
+  HEALTH_REGEN_RATE_MS,
 } from '../../constants/game-constants';
 import {
   createRegeneratingValueSchema,
@@ -15,8 +16,8 @@ import { skillsSchema, ISkills } from './skills';
 export type ICharacter = {
   name: string;
   money: number;
-  health: number;
 
+  health: IRegeneratingValue;
   energy: IRegeneratingValue;
   skills: ISkills;
 
@@ -25,12 +26,12 @@ export type ICharacter = {
   addEnergy: (amount: number) => void;
   removeEnergy: (amount: number) => void;
 
-  addMoney: (amount: number) => void;
-  removeMoney: (amount: number) => void;
-
+  getHealth: () => number;
   addHealth: (amount: number) => void;
   removeHealth: (amount: number) => void;
-  setHealth: (amount: number) => void;
+
+  addMoney: (amount: number) => void;
+  removeMoney: (amount: number) => void;
 };
 
 const characterSchema = new mongoose.Schema<ICharacter>(
@@ -45,9 +46,13 @@ const characterSchema = new mongoose.Schema<ICharacter>(
       default: MONEY_STARTING,
     },
     health: {
-      type: Number,
+      type: createRegeneratingValueSchema({
+        regenerateTickMs: HEALTH_REGEN_RATE_MS,
+        maxValue: HEALTH_MAX_BASE,
+        minValue: 0,
+      }).regeneratingValueSchema,
       required: true,
-      default: HEALTH_MAX_BASE,
+      default: () => ({}),
     },
     energy: {
       type: createRegeneratingValueSchema({
@@ -67,6 +72,7 @@ const characterSchema = new mongoose.Schema<ICharacter>(
   {
     _id: false,
     methods: {
+      // Energy
       getEnergy: function () {
         return this.energy.value();
       },
@@ -77,20 +83,22 @@ const characterSchema = new mongoose.Schema<ICharacter>(
         this.energy.subtract(amount);
       },
 
+      // Health
+      getHealth: function () {
+        return this.health.value();
+      },
+      addHealth: function (amount: number) {
+        this.health.add(amount);
+      },
+      removeHealth: function (amount: number) {
+        this.health.subtract(amount);
+      },
+
       addMoney: function (amount: number) {
         this.money += amount;
       },
       removeMoney: function (amount: number) {
         this.money -= amount;
-      },
-      addHealth: function (amount: number) {
-        this.health += amount;
-      },
-      removeHealth: function (amount: number) {
-        this.health -= amount;
-      },
-      setHealth: function (amount: number) {
-        this.health = amount;
       },
     },
   },
