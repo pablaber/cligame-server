@@ -1,4 +1,3 @@
-import type { StatusCode } from 'hono/utils/http-status';
 import type { ISkills } from '../../models/user/skills';
 import { User } from '../../models';
 import type { UserDocument } from '../../models/user/user';
@@ -7,7 +6,7 @@ import { ForbiddenError, InternalServerError } from '../../utils/errors';
 export type ActionResult = {
   success: boolean;
   message: string;
-  extraData?: Record<string, any>;
+  extraData?: Record<string, unknown>;
 };
 
 export type LevelRequirement = {
@@ -114,11 +113,22 @@ export class ActionBase {
     return user;
   }
 
-  async run(user: UserDocument, options?: any): Promise<ActionResult> {
+  async run(
+    user: UserDocument,
+    options?: Record<string, unknown>,
+  ): Promise<ActionResult> {
+    // This method is intended to be overridden by subclasses
+    // Using the 'user' parameter to avoid linting errors
+    void user;
+    void user;
+    void options;
     throw new Error('Method not yet implemented.');
   }
 
-  async execute(userId: string, options?: any): Promise<ActionResult> {
+  async execute(
+    userId: string,
+    options?: Record<string, unknown>,
+  ): Promise<ActionResult> {
     const user = await this.verifyMeetsRequirements(userId);
 
     const result = await this.run(user, options);

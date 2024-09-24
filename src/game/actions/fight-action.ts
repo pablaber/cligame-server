@@ -5,7 +5,6 @@ import { Encounter } from '../combat/Encounter';
 import type { Enemy } from '../combat/Enemy';
 import { UserDocument } from '../../models/user/user';
 import { NotFoundError } from '../../utils/errors';
-import { randomInRange } from '../../utils/app-utils';
 
 type FightActionOptions = {
   enemyId?: string;

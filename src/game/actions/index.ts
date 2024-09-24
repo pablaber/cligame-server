@@ -22,7 +22,7 @@ const actionsMap = AllActions.reduce(
 export async function executeAction(
   actionId: string,
   userId: string,
-  actionOptions?: Record<string, any>,
+  actionOptions?: Record<string, unknown>,
 ): Promise<ActionResult> {
   const action = actionsMap[actionId];
   if (!action) {

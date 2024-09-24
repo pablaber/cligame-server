@@ -107,12 +107,6 @@ export class Encounter {
     this.player = player;
   }
 
-  private addCombatLogEntry(
-    type: 'start' | 'hit' | 'miss',
-    attacker: 'enemy' | 'player',
-    damage: number,
-  ) {}
-
   start() {
     // TODO: add speed to determine who goes first
     let attacker: Fighter = this.player;

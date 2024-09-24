@@ -9,10 +9,7 @@ const actionRouter = new Hono<HonoEnvironment>();
 
 actionRouter.post('/:actionId', async (c) => {
   const { actionId } = c.req.param();
-  let body;
-  try {
-    body = await c.req.json();
-  } catch {}
+  const body = await c.req.json();
   const auth = await validateAuth(c);
 
   const { userId } = auth;

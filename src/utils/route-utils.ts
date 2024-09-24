@@ -6,7 +6,7 @@ import { BadRequestError } from './errors';
  * Validates the query parameters of a request.
  */
 export function validateQueryParams(schema: ZodSchema) {
-  return validator('query', (value, c) => {
+  return validator('query', (value) => {
     const parsed = schema.safeParse(value);
     if (!parsed.success) {
       throw new BadRequestError('Invalid Query Parameters', {
@@ -24,7 +24,7 @@ export function validateQueryParams(schema: ZodSchema) {
  * Validates the JSON body of a request.
  */
 export function validateJsonBody(schema: ZodSchema) {
-  return validator('json', (value, c) => {
+  return validator('json', (value) => {
     const parsed = schema.safeParse(value);
     if (!parsed.success) {
       throw new BadRequestError('Invalid Request Body', {

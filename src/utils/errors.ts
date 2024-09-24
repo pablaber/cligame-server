@@ -4,14 +4,14 @@ export type AppErrorOptions = {
   name: string;
   statusCode: StatusCode;
   message: string;
-  publicDetails?: Record<string, any>;
-  privateContext?: Record<string, any>;
+  publicDetails?: Record<string, unknown>;
+  privateContext?: Record<string, unknown>;
 };
 
 export class AppError extends Error {
   statusCode: StatusCode;
-  publicDetails?: Record<string, any>;
-  privateContext?: Record<string, any>;
+  publicDetails?: Record<string, unknown>;
+  privateContext?: Record<string, unknown>;
 
   constructor(options: AppErrorOptions) {
     super(options.message);
@@ -43,8 +43,8 @@ export class AppError extends Error {
 }
 
 type AdditionalErrorOptions = {
-  publicDetails?: Record<string, any>;
-  privateContext?: Record<string, any>;
+  publicDetails?: Record<string, unknown>;
+  privateContext?: Record<string, unknown>;
 };
 
 export class BadRequestError extends AppError {

@@ -4,8 +4,11 @@
     "dev": "tsx watch src/index.ts",
     "dev-pretty": "tsx watch src/index.ts | pino-pretty",
     "format": "prettier --write \"src/**/*ts\"",
+    "lint": "eslint .",
     "typecheck": "npx tsc --noEmit",
-    "test": "LOG_LEVEL=silent JWT_SIGNING_SECRET=test vitest"
+    "checks": "npm run lint && npm run typecheck",
+    "test-watch": "LOG_LEVEL=silent JWT_SIGNING_SECRET=test vitest",
+    "test": "npm run test-watch -- run"
   },
   "dependencies": {
     "@hono/node-server": "^1.13.1",
@@ -17,11 +20,16 @@
     "zod": "^3.23.8"
   },
   "devDependencies": {
+    "@eslint/js": "^9.11.1",
     "@types/node": "^20.11.17",
+    "eslint": "^9.11.1",
+    "eslint-config-prettier": "^9.1.0",
+    "globals": "^15.9.0",
     "pino-pretty": "^11.2.2",
     "prettier": "^3.3.3",
     "tsx": "^4.7.1",
     "typescript": "^5.6.2",
+    "typescript-eslint": "^8.7.0",
     "vitest": "^2.1.1"
   }
 }

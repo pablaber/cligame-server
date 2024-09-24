@@ -111,7 +111,7 @@ authRouter.post(
       throw new NotFoundError('User not found');
     }
 
-    const { passwordSalt, passwordHash } = user.account;
+    const { passwordSalt } = user.account;
 
     const calculatedPasswordHash = generatePasswordHash(password, passwordSalt);
     if (calculatedPasswordHash !== user.account.passwordHash) {

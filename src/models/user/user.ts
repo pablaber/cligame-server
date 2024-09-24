@@ -1,12 +1,6 @@
 import mongoose from 'mongoose';
-import { skillsSchema, type ISkills } from './skills';
-import { energySchema, type IEnergy } from './energy';
 import { accountSchema, type IAccount } from './account';
 import { characterSchema, type ICharacter } from './character';
-import {
-  HEALTH_MAX_BASE,
-  MONEY_STARTING,
-} from '../../constants/game-constants';
 import type { Document, Types } from 'mongoose';
 
 export type IUser = {
@@ -65,7 +59,7 @@ userSchema.set('toJSON', {
 
 const User = mongoose.model('User', userSchema);
 
-export type UserDocument = Document<unknown, {}, IUser> &
+export type UserDocument = Document<unknown, unknown, IUser> &
   IUser & {
     _id: Types.ObjectId;
   };

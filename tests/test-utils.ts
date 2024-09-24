@@ -88,7 +88,7 @@ export function createTestDatabase(userOptions?: TestUserOptions[]) {
   const testUserOptions = userOptions || [{}];
   let accessTokens: string[] = [];
 
-  let users: UserDocument[] = [];
+  const users: UserDocument[] = [];
 
   beforeAll(async () => {
     await mongoose.connect(TEST_MONGO_URI);

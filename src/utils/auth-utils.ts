@@ -49,7 +49,7 @@ export function generateAccessToken(options: GenerateAccessTokenOptions) {
   return sign(payload, JWT_SIGNING_SECRET, 'HS256');
 }
 
-const UnauthorizedErrorWithContext = (context: any) =>
+const UnauthorizedErrorWithContext = (context: Record<string, unknown>) =>
   new UnauthorizedError('The request is not authorized.', {
     privateContext: context,
   });
@@ -81,10 +81,10 @@ export async function validateAuth(c: Context): Promise<JwtPayload> {
   let payload: JwtPayload;
   try {
     payload = (await verify(token, JWT_SIGNING_SECRET)) as JwtPayload;
-  } catch (error: any) {
+  } catch (error: unknown) {
     let errorName = 'Unknown Error';
-    if ('name' in error) {
-      errorName = error.name;
+    if (typeof error === 'object' && error !== null && 'name' in error) {
+      errorName = error.name as string;
     }
 
     throw UnauthorizedErrorWithContext({
