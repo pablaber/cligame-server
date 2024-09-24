@@ -96,6 +96,9 @@ export function createRegeneratingValueSchema(
     const now = new Date();
 
     const previousNextTickDate = addMilliseconds(lastUpdate, nextTick);
+    if (previousNextTickDate > now) {
+      return nextTick;
+    }
     const currentTickValueMs = differenceInMilliseconds(
       now,
       previousNextTickDate,

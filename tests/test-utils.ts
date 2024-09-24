@@ -10,6 +10,10 @@ import {
 import { PASSWORD_SALT_BYTES } from '../src/constants/api-constants';
 import { addDays } from 'date-fns';
 import { UserDocument } from '../src/models/user/user';
+import {
+  ENERGY_REGEN_RATE_MS,
+  HEALTH_REGEN_RATE_MS,
+} from '../src/constants/game-constants';
 
 const TEST_MONGO_URI =
   'mongodb://root:example@localhost:27017/test?authSource=admin';
@@ -41,10 +45,20 @@ async function createTestUser(options?: TestUserOptions) {
     character: {
       name: options?.characterName || 'Test Character',
       money: options?.characterMoney,
-      health: options?.characterHealth,
-      energy: {
-        valueAtUpdate: options?.characterEnergy,
-      },
+      health: options?.characterHealth
+        ? {
+            valueAtUpdate: options.characterHealth,
+            lastUpdate: new Date(),
+            nextTick: HEALTH_REGEN_RATE_MS,
+          }
+        : undefined,
+      energy: options?.characterEnergy
+        ? {
+            valueAtUpdate: options.characterEnergy,
+            lastUpdate: new Date(),
+            nextTick: ENERGY_REGEN_RATE_MS,
+          }
+        : undefined,
       skills: {
         strength: { xp: options?.characterSkills?.strengthXp },
         defense: { xp: options?.characterSkills?.defenseXp },
